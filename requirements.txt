@@ -1,2 +1,2 @@
-celery==4.0.2
-redis
+celery==4.4.2
+redis==3.4.1

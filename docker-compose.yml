@@ -1,9 +1,11 @@
 version: '2'
 
 services:
-    celery:
+    celery_worker:
         build: .
-        volumes:
-          - .:/code
+        command: "celery -A tasks worker --loglevel INFO"
+    celery_beat_scheduler:
+        build: .
+        command: "celery -A tasks beat --loglevel DEBUG"
     redis:
         image: "redis:3"

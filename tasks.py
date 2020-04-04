@@ -1,3 +1,5 @@
+from random import randint
+
 from celery import Celery, chain
 
 
@@ -31,4 +33,4 @@ def send_expiration_email(user):
 
 
 def get_expired_users():
-    return (f'user_{i}' for i in range(5))
+    return [f'user_{randint(0, 100000)}']
