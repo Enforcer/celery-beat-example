@@ -1,9 +1,12 @@
 version: '2'
 
 services:
-    celery_worker:
+    celery_worker_with_general_queue:
         build: .
         command: "celery -A tasks worker --loglevel INFO"
+    celery_worker_dedicated_for_a_single_task:
+        build: .
+        command: "celery -A tasks worker --loglevel INFO -Q queue_for_single_worker --pool=prefork --concurrency=1"
     celery_beat_scheduler:
         build: .
         command: "celery -A tasks beat --loglevel DEBUG"

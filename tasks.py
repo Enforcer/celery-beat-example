@@ -1,36 +1,40 @@
-from random import randint
+import logging
+from time import sleep
 
-from celery import Celery, chain
+from celery import Celery
+
+
+logger = logging.getLogger(__name__)
 
 
 app = Celery('tasks', broker='redis://redis:6379/0')
+app.conf.task_routes = {
+    'tasks.single_worker_example': {'queue': 'queue_for_single_worker'}
+}
 
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(10, scan_for_expired_users.s(), name='scan for expired accounts every 4 hours')
+    sender.add_periodic_task(4, simple_periodic_task.s(), name='scan for expired accounts every 4 hours')
+    sender.add_periodic_task(6, single_worker_example.s(), name='execute task dedicated for a single worker')
 
 
-@app.task
-def scan_for_expired_users():
-    for user in get_expired_users():
-        deactivating_process = chain(deactivate_account.s(user), send_expiration_email.s())
-        deactivating_process()
+@app.task()
+def simple_periodic_task():
+    """
+    This task is goes to default queue.
+    It is executed by one of workers in the pool.
+    """
+    logger.info('Doing some work!')
+    sleep(1)
+    logger.info('Finished!')
 
 
-@app.task
-def deactivate_account(user):
-    # do some stuff
-    print(f'deactivating account: {user}')
-    return user + '_deactivated'
+@app.task()
+def single_worker_example():
+    """"
 
-
-@app.task
-def send_expiration_email(user):
-    # do some other stuff
-    print(f'sending expiration email to: {user}')
-    return True
-
-
-def get_expired_users():
-    return [f'user_{randint(0, 100000)}']
+    """
+    logger.info('Work started...')
+    sleep(3)
+    logger.info('Work finished!')
