@@ -32,8 +32,10 @@ def simple_periodic_task():
 
 @app.task()
 def single_worker_example():
-    """"
-
+    """
+    This task is executed in a dedicated worker with a single process.
+    It goes to a separate queue to make sure no other worker can
+    pick it up.
     """
     logger.info('Work started...')
     sleep(3)
